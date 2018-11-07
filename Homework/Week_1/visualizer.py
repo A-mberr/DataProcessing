@@ -20,18 +20,22 @@ HIGHEST_RATING = 10
 
 
 def parse(csvfile):
+    """
+    Create a dictionary with years between 2008 - 2018 and their linked ratings
+    """
     ratings = {key: [] for key in range(START_YEAR, END_YEAR)}
 
-    reader = csv.reader(csvfile)
-    header = next(reader)
-
+    reader = csv.DictReader(csvfile)
     for row in reader:
-        ratings[int(row[2])].append(float(row[1]))
+        ratings[int(row["Year"])].append(float(row["Rating"]))
 
     return ratings
 
 
 def compute_plot_data(ratings):
+    """
+    Calculates the averages of the ratings and stores them in rating
+    """
     year = list(ratings)
     rating = []
 
@@ -43,6 +47,9 @@ def compute_plot_data(ratings):
 
 
 def plot_data(year, rating):
+    """
+    Plots the linegraph
+    """
     plt.plot(year, rating)
     plt.axis([START_YEAR, END_YEAR, LOWEST_RATING, HIGHEST_RATING])
     plt.show()
@@ -55,7 +62,6 @@ def main():
     year, rating = compute_plot_data(ratings)
 
     plot_data(year, rating)
-
 
 
 if __name__ == "__main__":
