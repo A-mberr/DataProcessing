@@ -52,6 +52,8 @@ def plot_data(year, rating):
     """
     plt.plot(year, rating)
     plt.axis([START_YEAR, END_YEAR, LOWEST_RATING, HIGHEST_RATING])
+    plt.ylabel('Rating')
+    plt.xlabel('Years')
     plt.show()
 
 
