@@ -1,5 +1,5 @@
-Amber Nobel
-Minor Programmeren
-Link to Javascript Intro:
+Amber Nobel/n
+Minor Programmerenn/
+Link to Javascript Intro:n/
 
-I used my wildcard on JavaScript Intro assignment
+I used my wildcard on JavaScript Intro assignmentn/
