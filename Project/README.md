@@ -1,4 +1,4 @@
-Eind Prject
+Eind Project
 ============
 Vaccineren lijkt de laatste tijd weer een veel besproken onderwerp in Nederland. Mensen trekken in twijfel of de vaccinaties wel doen wat ze moeten doen of dat ze zelfs bepaalde ziektes kunnen veroorzaken. Dit heeft geleid tot een afname in vaccinatiegraad in Nederland, met als gevolg dat de groepsimmuniteit daalt. Dit heeft als gevolg dat mensen elkaar weer makkelijker kunnen besmetten en er steeds meer gevallen van de mazelen in Nederland worden gedetecteerd. 
 
