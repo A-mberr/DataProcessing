@@ -1,5 +1,6 @@
 // Name: Amber Nobel
 // Student ID: 11819359
+// https://bl.ocks.org/d3noob/0e276dc70bb9184727ee47d6dd06e915 was used for constructing this code
 
 async function loadData() {
   let res = await d3.json("data.json");
