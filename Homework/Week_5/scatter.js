@@ -35,11 +35,16 @@ function initGraph() {
     yScale: d3.scaleLinear().range([height, 0]).domain([0, 0]),
     xAxis: null,
     yAxis: null,
+    yAxisLabels: {
+      "msti": "Women researchers of total researchers (%)",
+      "consconf": "Consumer confidence index",
+    },
   };
 
   graph.xAxis = drawXAxis(graph);
   graph.yAxis = drawYAxis(graph);
 
+  // Places the title within the SVG.
   d3.select("svg").append("text")
   .attr("x", (width + margin.left + margin.right) / 2)
   .attr("y", margin.top - 4)
@@ -48,6 +53,7 @@ function initGraph() {
   .style("font-size", "30px")
   .text("Scatter plots")
 
+  // Places the X label.
   content.append("text")
   .style("font-size", "12px")
   .attr("text-anchor", "end")
@@ -56,6 +62,14 @@ function initGraph() {
     (graph.height + (graph.margin.bottom / 5 * 4)) + ")"
   )
   .text("Calendar years")
+
+  // Places the Y label.
+  graph.content.append("text")
+  .style("font-size", "13px")
+  .attr("class", "y-axis-label")
+  .attr("y", 50)
+  .attr("transform", "rotate(90)")
+  .text(graph.yAxisLabels["msti"])
 
   return graph;
 }
@@ -98,6 +112,7 @@ function updateYScale(graph, data) {
 }
 
 function uniqueCountries(data) {
+  // Gathers the different countries from the consConf dataset.
   let found = {};
   data.forEach(d => {
     found[d.Country] = true;
@@ -138,7 +153,7 @@ function renderLegend(graph, colors) {
     .style('fill', d => d[1])
     ;
 
-  // Render the labels.
+  // Render the colors.
   graph.legend.selectAll('text')
     .remove()
     .exit()
@@ -199,7 +214,13 @@ function drawYAxis(graph) {
   return yAxis;
 }
 
+function updateYAxisLabel(graph, labelText) {
+  graph.svg.select('.y-axis-label')
+    .text(labelText);
+}
+
 function updateData(graph, data) {
+  // Updates the data when other dataset is selected.
   const colors = buildColorMap(data);
 
   updateYScale(graph, data);
@@ -220,6 +241,13 @@ function showData(filename) {
         d.Country = 'Women';
       return d;
     });
+
+    // Update label on Y axis.
+    let labelText = graph.yAxisLabels["consconf"];
+    if (data[0].Country === 'Women') {
+      labelText = graph.yAxisLabels["msti"]
+    }
+    updateYAxisLabel(graph, labelText);
 
     updateData(graph, data);
   }).catch(e => {
