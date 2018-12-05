@@ -1,100 +1,146 @@
-// Name: Amber Nobel
-// Student ID: 11819359
+function initGraph() {
+  const svg = d3.select("svg");
 
-function computeXScale(graph) {
-  const {width, padding} = graph;
+  // Geometry of inner svg plotting area.
+  const margin = {
+      top: 40,
+      right: 20,
+      bottom: 30,
+      left: 40
+  };
+  const width = +svg.attr("width") - margin.left - margin.right;
+  const height = +svg.attr("height") - margin.top - margin.bottom;
 
-  return d3.scaleLinear()
-     .domain([2006, 2015])
-     .range([padding, width - padding * 2]);
-}
-
-function computeYScale(data, graph){
-  const {padding, height} = graph;
-
-  return d3.scaleLinear()
-    .domain([0, d3.max(data[0], d => {return d.datapoint; })])
-    .range([height - padding, padding]);
-}
-
-function drawXAxis(){
-  // Create the Axis
-  var xAxis = d3.axisBottom()
-                .scale(xScale)
-                .ticks([11]);
-
-  svg.append("g")
-     .attr("transform", "translate(0, 450)")
-     .call(xAxis);
-}
-
-function drawYaxis(){
-  var yAxis = d3.axisLeft()
-                .scale(yScale);
-
-  svg.append("g")
-     .call(yAxis)
-     .attr("transform", "translate(50, 0)");
-}
-
-function renderData(data, graph) {
-  const {width, height, padding} = graph;
-
-  // Plot the coordinates of dataset1
-  var dots = svg.selectAll("circle")
-    .data(data[0])
-    .enter()
-    .append("circle")
-    .attr("cx", d => {
-      return graph.xScale(d.time);
-    })
-    .attr("cy", d => {
-      return graph.yScale(d.datapoint);
-    })
-    .attr("r", 3)
-    .attr("fill", "pink");
-
-  svg.selectAll("circle")
-    .transition()
-    .duration(750)
-    .style("fill", "blue");
-
-}
-
-function main() {
-  let p1 = d3.json("msti.json");
-  let p2 = d3.json("consConf.json");
+  const content = svg.append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+    ;
 
   const graph = {
-    width: 1000,
-    height: 500,
-    padding: 50,
+    svg: svg,
+    content: content,
+    margin: margin,
+    width: width,
+    height: height,
+    xScale: d3.scaleBand().range([0, width]).domain([0, 0]),
+    yScale: d3.scaleLinear().range([height, 0]).domain([0, 0]),
+    xAxis: null,
+    yAxis: null,
   };
 
-  let svg = d3.select("body")
-    .append("svg")
-    .attr("width", graph.width + graph.padding)
-    .attr("height", graph.height + graph.padding)
-    .attr('style', 'background: #fff');
+  graph.xAxis = drawXAxis(graph);
+  graph.yAxis = drawYAxis(graph);
 
-  Promise.all([p1, p2]).then(resp => {
-    graph.xScale = computeXScale(graph);
-    graph.yScale = computeYScale(resp, graph);
-    renderData(resp, graph);
-  }).catch(function(e){
+  return graph;
+}
+
+function updateXScale(graph, data) {
+  // Use all years as an X axis label.
+  graph.xScale.domain(data.map(d => d.time));
+
+  // Update X Axis
+  graph.svg.select(".x.axis")
+    .transition()
+    .duration(400)
+    .call(graph.xAxis);
+}
+
+function updateYScale(graph, data) {
+  // Compute the minimum and maximum value.
+  const values = data.map(d => d.datapoint);
+  const domain = [
+    d3.min(values),
+    d3.max(values),
+  ];
+
+  // Add five percent above and below the Y axis' domain to avoid clamping the
+  // content area to the Y axis. Five percent is computed relative to the
+  // difference between the minimum and maximum domain value. Higher domain
+  // values should not create a larger margin than lower domains.
+  const axisMargin = 0.05;
+  const difference = (domain[1] - domain[0]) * axisMargin;
+  domain[0] = domain[0] - difference;
+  domain[1] = domain[1] + difference;
+
+  graph.yScale.domain(domain);
+
+  // Update Y Axis
+  graph.svg.select(".y.axis")
+    .transition()
+    .duration(400)
+    .call(graph.yAxis);
+}
+
+function renderScatterDots(graph, data) {
+  const {xScale, yScale, content} = graph;
+
+  // Draw the scatter dots.
+  // Center the dots in the band using "bandwidth() / 2". This idea comes from:
+  // https://bl.ocks.org/d3indepth/1aef77d17863e603ff4e84226db5b227
+  content.selectAll("circle")
+    .remove()
+    .exit()
+    .data(data)
+    .enter()
+    .append("circle")
+    .attr("cx", d => xScale(d.time))
+    .attr("cy", d => yScale(d.datapoint))
+    .attr("r", 3)
+    .attr("fill", "#ffffff")
+    .attr('transform', 'translate(' + (xScale.bandwidth() / 2) + ', 0)')
+
+    // Transition to black after some milliseconds.
+    .transition()
+    .duration(1000)
+    .style("fill", "black");
+}
+
+function drawXAxis(graph) {
+  var xAxis = d3.axisBottom()
+    .scale(graph.xScale);
+
+  graph.content.append('g')
+    .attr('class', 'x axis')
+    .attr("transform", "translate(0," + graph.height + ")")
+    .call(xAxis);
+
+  return xAxis;
+}
+
+function drawYAxis(graph) {
+  var yAxis = d3.axisLeft()
+    .scale(graph.yScale);
+
+  graph.content.append('g')
+    .attr('class', 'y axis')
+    .call(yAxis);
+
+  return yAxis;
+}
+
+function updateData(graph, data) {
+  updateYScale(graph, data);
+  updateXScale(graph, data);
+
+  renderScatterDots(graph, data);
+}
+
+function showData(filename) {
+  d3.json(filename).then(data => {
+    updateData(graph, data);
+  }).catch(e => {
+    // Oh no, an error occurred. Notify the user!
     d3.select("body")
       .append("p")
       .text("error: " + e);
+    console.error(e);
     throw(e);
   });
+}
 
-  // TODO: Move to HTML
-  d3.select("body").append("p").text("http://stats.oecd.org/SDMX-JSON/data/MSTI_PUB/TH_WRXRS.FRA+DEU+KOR+NLD+PRT+GBR/all?startTime=2007&endTime=2015");
-  d3.select("body").append("p").text("http://stats.oecd.org/SDMX-JSON/data/HH_DASH/FRA+DEU+KOR+NLD+PRT+GBR.COCONF.A/all?startTime=2007&endTime=2015");
-};
 
 // Use 'addEventListener' instead of 'window.onload = function() {};' to avoid
 // overwriting a previously set function handler.
 window.addEventListener("load", function() {
-  main();
+  window.graph = initGraph();
+  showData('msti.json')
 });

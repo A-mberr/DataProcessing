@@ -16,15 +16,14 @@ Student number: 11819359 -->
   <body>
     <h1>Scatter Plot Assignment</h1>
     <h2>Amber Nobel - 11819359</h2>
-    <div id="option">
-    <input name="data1Button"
-           type="button"
-           value="Update"
-           onclick="updateData()" />
-    <input name="data2Button" 
-           type="button"
-           value="Revert"
-           onclick="revertData()" />
-</div>
+
+    <svg width="960" height="500"></svg>
+    <button onclick="showData('consConf.json')">
+      consConf
+    </button>
+    <button onclick="showData('msti.json')">
+      MSTI
+    </button>
+
   </body>
 </html>
