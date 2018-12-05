@@ -7,9 +7,9 @@ function initGraph() {
   // Geometry of inner svg plotting area.
   const margin = {
       top: 40,
-      right: 20,
-      bottom: 30,
-      left: 40
+      right: 140,
+      bottom: 40,
+      left: 60
   };
   const width = +svg.attr("width") - margin.left - margin.right;
   const height = +svg.attr("height") - margin.top - margin.bottom;
@@ -18,9 +18,16 @@ function initGraph() {
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
     ;
 
+  const legend = svg.append("g")
+    .attr("transform",
+      "translate(" + (width + margin.left) +
+      "," + (height / 2) + ")"
+    );
+
   const graph = {
     svg: svg,
     content: content,
+    legend: legend,
     margin: margin,
     width: width,
     height: height,
@@ -32,6 +39,23 @@ function initGraph() {
 
   graph.xAxis = drawXAxis(graph);
   graph.yAxis = drawYAxis(graph);
+
+  d3.select("svg").append("text")
+  .attr("x", (width + margin.left + margin.right) / 2)
+  .attr("y", margin.top - 4)
+  .attr("text-anchor", "middle")
+  .style("text-decoration", "underline")
+  .style("font-size", "30px")
+  .text("Scatter plots")
+
+  content.append("text")
+  .style("font-size", "12px")
+  .attr("text-anchor", "end")
+  .attr("transform",
+    "translate(" + graph.width + "," +
+    (graph.height + (graph.margin.bottom / 5 * 4)) + ")"
+  )
+  .text("Calendar years")
 
   return graph;
 }
@@ -73,7 +97,61 @@ function updateYScale(graph, data) {
     .call(graph.yAxis);
 }
 
-function renderScatterDots(graph, data) {
+function uniqueCountries(data) {
+  let found = {};
+  data.forEach(d => {
+    found[d.Country] = true;
+  })
+
+  return Object.keys(found);
+}
+
+function buildColorMap(data) {
+  // Determine colors for graph data.
+  let countries = uniqueCountries(data);
+
+  // Start with a base color and increment the 'hue' value for different colors.
+  let base = d3.hsl("#cb3030");
+  const colors = {};
+  countries.forEach(country => {
+    colors[country] = base.toString();
+    base.h = (base.h + 60) % 360;
+  });
+
+  return colors;
+}
+
+function renderLegend(graph, colors) {
+  const data = Object.entries(colors);
+
+  // Render the labels.
+  graph.legend.selectAll('rect')
+    .remove()
+    .exit()
+    .data(data)
+    .enter()
+    .append('rect')
+    .attr('x', 0)
+    .attr("y", (d, i) => i * 20 - 20 + 6)
+    .attr('width', 20 - 3)
+    .attr('height', 20 - 3)
+    .style('fill', d => d[1])
+    ;
+
+  // Render the labels.
+  graph.legend.selectAll('text')
+    .remove()
+    .exit()
+    .data(data)
+    .enter()
+    .append('text')
+    .attr('x', 20)
+    .attr("y", (d, i) => i * 20)
+    .text(d => d[0])
+    ;
+}
+
+function renderScatterDots(graph, data, colors) {
   const {xScale, yScale, content} = graph;
 
   // Draw the scatter dots.
@@ -94,7 +172,8 @@ function renderScatterDots(graph, data) {
     // Transition to black after some milliseconds.
     .transition()
     .duration(1000)
-    .style("fill", "black");
+    //.attr("fill", "#000000")
+    .attr("fill", d => colors[d.Country]);
 }
 
 function drawXAxis(graph) {
@@ -121,14 +200,27 @@ function drawYAxis(graph) {
 }
 
 function updateData(graph, data) {
+  const colors = buildColorMap(data);
+
   updateYScale(graph, data);
   updateXScale(graph, data);
 
-  renderScatterDots(graph, data);
+  renderLegend(graph, colors);
+  renderScatterDots(graph, data, colors);
 }
 
 function showData(filename) {
   d3.json(filename).then(data => {
+
+    // Women in science dataset does not have a 'Country' field. This code sets
+    // the value to 'Women'. That causes a 'Women' entry in the legend.
+    // Otherwise, the value 'undefined' is printed.
+    data = data.map(d => {
+      if (!d.Country)
+        d.Country = 'Women';
+      return d;
+    });
+
     updateData(graph, data);
   }).catch(e => {
     // Oh no, an error occurred. Notify the user!

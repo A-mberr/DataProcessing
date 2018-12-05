@@ -1,7 +1,25 @@
+/* Name: Amber Nobel
+Student ID: 11819359 */
+
 body {
   background-color: #eee;
 }
 
 svg {
   background-color: #fff
+}
+
+button {
+  background-color: orange;
+  border: none;
+  color: white;
+  padding: 22px 35px;
+  text-align: center;
+  display: inline-block;
+  font-size: 18px;
+  margin-left: 170px;
+}
+
+p {
+  font-size: 22px;
 }
