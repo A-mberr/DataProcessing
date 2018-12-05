@@ -1,3 +1,6 @@
+// Name: Amber Nobel
+// Student ID: 11819359
+
 function initGraph() {
   const svg = d3.select("svg");
 
