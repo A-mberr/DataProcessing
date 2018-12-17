@@ -8,12 +8,14 @@ async function loadData() {
 }
 
 function findAxisLabel(hovered) {
+  //function finds the labels of the x axis for the mouse over event
   return d3.select('.axis--x')
     .selectAll('text')
     .filter(function(x) { return x == hovered.name; });
 }
 
 function drawBars(svg, data, height, yScale) {
+  //draws the bars of the chart with the amount of calories displayed in height
   var rect = svg.selectAll("rect")
     .data(data)
     .enter()
@@ -23,6 +25,7 @@ function drawBars(svg, data, height, yScale) {
     .attr('y', d => yScale(d['calories']))
     .attr('width', 31)
     .attr('height', d => height - yScale(d['calories']))
+    // when mouse runs over bar, the labels are becomming bold
     .on("mouseover", d => {
       findAxisLabel(d).attr('style', "text-anchor:start; font-weight: bold;");
     })
@@ -30,7 +33,6 @@ function drawBars(svg, data, height, yScale) {
       findAxisLabel(d).attr('style', "text-anchor:start; font-weight: regular;");
     })
     .on("click", showPieChart);
-    // console.log(data)
 }
 
 function xLabels(svg, data, height){
@@ -42,6 +44,7 @@ function xLabels(svg, data, height){
     .scale(xScale)
     .ticks([50]);
 
+  // places the cereal brands rotated on the x axis so the labels are readible
   var gX = svg.append("g")
     .attr("class", "axis axis--x")
     .attr("transform", "translate(50," + height + ")")
@@ -61,8 +64,16 @@ function yLabels(svg, data, yScale){
     .call(yAxis);
 }
 
-function showPieChart(data){
+function chartTitle(svg){
+  svg.append("text")
+    .attr("x", 600)
+    .attr("y", 30)
+    .attr("text-anchor", "middle")
+    .style("font-size", "22px")
+    .text("50 Americna cereal brands and the amount of calories")
+}
 
+function showPieChart(data){
   // code is based on the information in this video:
   // https://www.youtube.com/watch?v=P8KNr0pDqio
   var width = 550;
@@ -81,7 +92,8 @@ function showPieChart(data){
   var labels = ["Fat", "Protein", "Carbs"]
   var brand = [data["name"]]
 
-  var data = d3.pie().sort(null)(details);
+  // draws the pie chart based on the information in segments
+  var content = d3.pie().sort(null)(details);
 
   var segments = d3.arc()
                   .innerRadius(0)
@@ -90,10 +102,11 @@ function showPieChart(data){
                   .padRadius(50);
 
   var sections = svg.append("g").attr("transform", "translate(250, 300)")
-                  .selectAll("path").data(data);
+                  .selectAll("path").data(content);
 
-  sections.enter().append("path").attr("d", segments).attr("fill", function(d, i) {return colors(i);});
+  sections.enter().append("path").attr("d", segments).attr("fill", (d, i) => colors(i));
 
+  // creates the rectangles for the legend
   svg.selectAll('rect')
     .data(details)
     .enter()
@@ -102,8 +115,9 @@ function showPieChart(data){
     .attr("y", (d, i) => i * 20 - 20 + 60)
     .attr('width', 20 - 3)
     .attr('height', 20 - 3)
-    .attr('fill', function(d, i) {return colors(i);})
+    .attr('fill', (d, i) => colors(i))
 
+  // creates legend labels
   svg.selectAll('text')
     .data(labels)
     .enter()
@@ -113,7 +127,8 @@ function showPieChart(data){
     .text(d => d)
     ;
 
-    svg.append("text")
+  // Sets title within the pie chart svg
+  svg.append("text")
     .attr("x", 230)
     .attr("y", 30)
     .attr("text-anchor", "middle")
@@ -122,11 +137,7 @@ function showPieChart(data){
 }
 
 
-
 async function main() {
-  d3.select("body").append("p").style("font-size", "34px").text("One delicious cereal bar (chart)")
-  d3.select("body").append("p").text("Amber Nobel 11819359");
-  d3.select("body").append("p").text("This bar chart shows the amount of calories that can be found in different brands of ceral");
 
   let data = await loadData();
   console.log(data)
@@ -139,14 +150,19 @@ async function main() {
             .attr("height", 600)
             .attr('style', 'background: #fff');
 
+// d3.select("body").append("p").style("font-size", "34px").text("One delicious cereal bar (chart)")
+// d3.select("body").append("p").text("Amber Nobel 11819359");
+// d3.select("body").append("p").text("This bar chart shows the amount of calories that can be found in different brands of ceral");
+
+
   let yScale = d3.scaleLinear()
     .domain([0, d3.max(data, d => { return d['calories']; })])
     .range([400, 30]);
 
-  // console.log(data)
   drawBars(svg, data, height, yScale);
   xLabels(svg, data, height);
   yLabels(svg, data, yScale);
+  chartTitle(svg)
 }
 
 main();
