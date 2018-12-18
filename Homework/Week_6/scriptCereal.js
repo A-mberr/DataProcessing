@@ -66,11 +66,12 @@ function yLabels(svg, data, yScale){
 
 function chartTitle(svg){
   svg.append("text")
-    .attr("x", 600)
+    .attr("x", 750)
     .attr("y", 30)
     .attr("text-anchor", "middle")
-    .style("font-size", "22px")
-    .text("50 Americna cereal brands and the amount of calories")
+    .style("font-size", "28px")
+    .style("font-family", "Arial Black")
+    .text("Pick the cereal brand to get to know the nutritional values")
 }
 
 function showPieChart(data){
@@ -101,7 +102,7 @@ function showPieChart(data){
                   .padAngle(.05)
                   .padRadius(50);
 
-  var sections = svg.append("g").attr("transform", "translate(250, 300)")
+  var sections = svg.append("g").attr("transform", "translate(300, 350)")
                   .selectAll("path").data(content);
 
   sections.enter().append("path").attr("d", segments).attr("fill", (d, i) => colors(i));
@@ -132,8 +133,9 @@ function showPieChart(data){
     .attr("x", 230)
     .attr("y", 30)
     .attr("text-anchor", "middle")
-    .style("font-size", "18px")
-    .text("Nutritional values of " + brand)
+    .style("font-size", "22px")
+    .style("font-family", "Arial Black")
+    .text(brand)
 }
 
 
@@ -148,12 +150,8 @@ async function main() {
             .append("svg")
             .attr("width", 1700)
             .attr("height", 600)
-            .attr('style', 'background: #fff');
-
-// d3.select("body").append("p").style("font-size", "34px").text("One delicious cereal bar (chart)")
-// d3.select("body").append("p").text("Amber Nobel 11819359");
-// d3.select("body").append("p").text("This bar chart shows the amount of calories that can be found in different brands of ceral");
-
+            .attr('style', 'background: #fff')
+            .attr("transform", "translate(100, 100)");
 
   let yScale = d3.scaleLinear()
     .domain([0, d3.max(data, d => { return d['calories']; })])
