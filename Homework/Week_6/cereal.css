@@ -12,3 +12,10 @@ h2 {
   font-size: 32px;
   text-align: center;
 }
+
+p {
+  ont-family: Arial Black;
+  font-size: 32px;
+  text-align: justify;
+  margin: 10%;
+}
