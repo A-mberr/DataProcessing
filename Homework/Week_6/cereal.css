@@ -1,6 +1,10 @@
 /* Name: Amber Nobel
 Student number: 11819359 */
 
+* {
+  background-color: "#e6ffff");
+}
+
 h1 {
   font-family: Arial Black;
   font-size: 32px;
@@ -18,4 +22,12 @@ p {
   font-size: 32px;
   text-align: justify;
   margin: 10%;
+    word-spacing: 15px;
+  border: 1px solid steelblue;
+  outline: 5px dotted steelblue;
+  font-weight: bold;
+}
+
+body {
+  background: #edffdb;
 }
