@@ -48,6 +48,9 @@ function xLabels(svg, data, height){
   var gX = svg.append("g")
     .attr("class", "axis axis--x")
     .attr("transform", "translate(50," + height + ")")
+    .style("font-size", "20px")
+    .transition()
+    .duration(400)
     .call(xAxis)
   .selectAll("text")
     .attr("y", 0)
@@ -61,7 +64,18 @@ function yLabels(svg, data, yScale){
   const yAxis = d3.axisLeft().scale(yScale)
   var gY = svg.append("g")
     .attr("transform", "translate(50, 0)")
-    .call(yAxis);
+    .call(yAxis)
+    .transition()
+    .duration(400)
+    .style("font-size", "20px");
+
+    svg.append("text")
+      .attr("x", 45)
+      .attr("y", 15)
+      .attr("text-anchor", "middle")
+      .style("font-size", "20px")
+      .style("font-family", "Arial Black")
+      .text("Calories")
 }
 
 function chartTitle(svg){
@@ -77,8 +91,8 @@ function chartTitle(svg){
 function showPieChart(data){
   // code is based on the information in this video:
   // https://www.youtube.com/watch?v=P8KNr0pDqio
-  var width = 550;
-  var height = 600;
+  var width = 700;
+  var height = 800;
   var colors = d3.scaleOrdinal(d3.schemeDark2);
 
   d3.select('svg.pie').remove();
@@ -87,10 +101,10 @@ function showPieChart(data){
     .attr('class', 'pie')
     .attr("width", width)
     .attr("height", height)
-    .style("background", "white")
+    .style("background", "#edffdb")
 
-  var details = [data['fat'], data['protein'], data['carbo']]
-  var labels = ["Fat", "Protein", "Carbs"]
+  var details = [data['fat'], data['protein'], data['carbo'], data['sugars']]
+  var labels = ["Fat", "Protein", "Carbs", "Sugar"]
   var brand = [data["name"]]
 
   // draws the pie chart based on the information in segments
@@ -133,6 +147,8 @@ function showPieChart(data){
     .attr("x", 230)
     .attr("y", 30)
     .attr("text-anchor", "middle")
+    .transition()
+    .duration(300)
     .style("font-size", "22px")
     .style("font-family", "Arial Black")
     .text(brand)
@@ -149,9 +165,9 @@ async function main() {
   let svg = d3.select("body")
             .append("svg")
             .attr("width", 1700)
-            .attr("height", 600)
-            .attr('style', 'background: #fff')
-            .attr("transform", "translate(100, 100)");
+            .attr("height", 800)
+            .attr('style', 'background: #edffdb')
+            .attr("transform", "translate(100, 100)")
 
   let yScale = d3.scaleLinear()
     .domain([0, d3.max(data, d => { return d['calories']; })])
